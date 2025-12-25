@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предсказатель дней недели от ЦРУ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 20, 40, 0.85);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 2px solid #00b4d8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 180, 216, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, #00b4d8, #90e0ef, #00b4d8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 180, 216, 0.5);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #90e0ef;
+            opacity: 0.9;
+        }
+
+        .seal {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(220, 20, 60, 0.9) 30%, transparent 70%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed white;
+            transform: rotate(15deg);
+        }
+
+        .seal span {
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .display-area {
+            width: 100%;
+            min-height: 200px;
+            background: rgba(0, 10, 20, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(0, 180, 216, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .computing-text {
+            font-size: 1.4rem;
+            text-align: center;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            color: #90e0ef;
+            position: relative;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.4rem;
+            background-color: #00ff00;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .result {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .predict-button {
+            background: linear-gradient(45deg, #ff006e, #ff7b00);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(255, 0, 110, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .predict-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(255, 0, 110, 0.5);
+            background: linear-gradient(45deg, #ff7b00, #ff006e);
+        }
+
+        .predict-button:active {
+            transform: translateY(0);
+        }
+
+        .predict-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-button {
+            background: transparent;
+            color: #90e0ef;
+            border: 1px solid #90e0ef;
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background: rgba(144, 224, 239, 0.1);
+        }
+
+        .status-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00b4d8, #00ff00);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .secret-message {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Анимация для текста вычислений */
+        .computing-text span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: textAppear 0.5s forwards;
+        }
+
+        @keyframes textAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fun-fact {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 3px solid #ff7b00;
+            font-size: 0.9rem;
+            color: #90e0ef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-secret"></i> ПРЕДСКАЗАТЕЛЬ ДНЕЙ НЕДЕЛИ</h1>
+            <p>Используя секретные технологии ЦРУ, НАСА и нашего офиса</p>
+            <div class="seal">
+                <span>Совершенно<br>секретно<br>Уровень: Омега</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="display-area">
+                <div id="computingText" class="computing-text">
+                    Нажмите кнопку для начала вычислений
+                </div>
+                <div id="result" class="result">
+                    <!-- Сюда придет результат -->
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div id="progressBar" class="progress"></div>
+            </div>
+
+            <div class="button-container">
+                <button id="predictButton" class="predict-button">
+                    <i class="fas fa-crystal-ball"></i> Предсказать завтрашний день
+                </button>
+                <button id="resetButton" class="reset-button">
+                    <i class="fas fa-redo"></i> Сбросить вычисления
+                </button>
+            </div>
+            
+            <div class="fun-fact" id="funFact">
+                Интересный факт: этот предсказатель точен на 110.7%!
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Секретная лаборатория предсказаний. Все права защищены. Особо опасная технология.</p>
+            <p>Одобрено отделом кадров и бухгалтерией</p>
+        </div>
+
+        <div class="secret-message">
+            Код: 7A3B9F | Версия: 25.01 | День: сегодня (скорее всего)
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const predictButton = document.getElementById('predictButton');
+            const resetButton = document.getElementById('resetButton');
+            const computingText = document.getElementById('computingText');
+            const result = document.getElementById('result');
+            const progressBar = document.getElementById('progressBar');
+            const funFact = document.getElementById('funFact');
+            
+            // Массив "серьезных" сообщений о вычислениях
+            const computingMessages = [
+                "Подключаемся к спутникам NASA...",
+                "Сканируем базу данных ЦРУ...",
+                "Сверяемся с звёздными картами...",
+                "Спрашиваем у Королевы...",
+                "Пытаем Осипову по этому вопросу...",
+                "Делаем вычисления в 1С...",
+                "Капсенкова подсказывает...",
+                "Крынкин шепчет правильный ответ...",
+                "Родионов обманывает... проверяем...",
+                "Анализируем солнечную активность...",
+                "Консультируемся у экстрасенсов...",
+                "Расшифровываем послания из будущего...",
+                "Проверяем фазы Луны...",
+                "Подключаем квантовый компьютер...",
+                "Ищем ответ в матрице...",
+                "Калькулируем временные аномалии...",
+                "Синхронизируем с хрониками Акаши...",
+                "Запрашиваем данные у Департамента Времени...",
+                "Проводим окончательные расчёты...",
+                "ПЕРЕПРОВЕРЯЕМ ВСЁ!"
+            ];
+            
+            let isComputing = false;
+            let currentMessageIndex = 0;
+            let computationInterval;
+            
+            // Функция для получения правильного завтрашнего дня
+            function getTomorrowDay() {
+                const days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const tomorrowIndex = tomorrow.getDay();
+                return days[tomorrowIndex].toUpperCase();
+            }
+            
+            // Функция для начала "вычислений"
+            function startComputation() {
+                if (isComputing) return;
+                
+                isComputing = true;
+                predictButton.disabled = true;
+                computingText.style.display = 'flex';
+                result.style.display = 'none';
+                currentMessageIndex = 0;
+                progressBar.style.width = '0%';
+                funFact.style.display = 'none';
+                
+                // Показываем первое сообщение
+                updateComputingText();
+                
+                // Запускаем интервал для смены сообщений
+                computationInterval = setInterval(function() {
+                    currentMessageIndex++;
+                    
+                    // Обновляем прогресс-бар
+                    const progressPercentage = Math.min((currentMessageIndex / computingMessages.length) * 100, 100);
+                    progressBar.style.width = progressPercentage + '%';
+                    
+                    if (currentMessageIndex < computingMessages.length) {
+                        updateComputingText();
+                    } else {
+                        // Завершаем вычисления
+                        finishComputation();
+                    }
+                }, 3500); // Меняем сообщение каждые 3.5 секунды
+            }
+            
+            // Функция обновления текста вычислений
+            function updateComputingText() {
+                computingText.innerHTML = `
+                    <span>${computingMessages[currentMessageIndex]}</span>
+                    <div class="cursor"></div>
+                `;
+                
+                // Добавляем случайные символы для реалистичности
+                if (Math.random() > 0.5) {
+                    setTimeout(() => {
+                        if (computingText.innerHTML.includes('<span>')) {
+                            const codes = ['OK', 'ERR', 'WAIT', 'PROC', 'DONE'];
+                            const code = codes[Math.floor(Math.random() * codes.length)];
+                            computingText.innerHTML = `
+                                <span>${computingMessages[currentMessageIndex]} <span style="color:#00ff00; font-size:0.9rem;">[${code}]</span></span>
+                                <div class="cursor"></div>
+                            `;
+                        }
+                    }, 1500);
+                }
+            }
+            
+            // Функция завершения вычислений
+            function finishComputation() {
+                clearInterval(computationInterval);
+                
+                // Ждем немного перед показом результата
+                setTimeout(() => {
+                    computingText.style.display = 'none';
+                    
+                    // Получаем ПРАВИЛЬНЫЙ завтрашний день
+                    const tomorrowDay = getTomorrowDay();
+                    result.textContent = `ЗАВТРА БУДЕТ... ${tomorrowDay}!`;
+                    result.style.display = 'block';
+                    
+                    // Анимация появления результата
+                    result.style.opacity = '0';
+                    result.style.transform = 'scale(0.8)';
+                    
+                    setTimeout(() => {
+                        result.style.transition = 'all 0.8s ease';
+                        result.style.opacity = '1';
+                        result.style.transform = 'scale(1)';
+                    }, 50);
+                    
+                    isComputing = false;
+                    predictButton.disabled = false;
+                    progressBar.style.width = '100%';
+                    
+                    // Показываем забавный факт
+                    setTimeout(() => {
+                        const funFacts = [
+                            "Интересный факт: этот предсказатель точен на 110.7%!",
+                            "Секрет точности: мы знаем календарь наизусть!",
+                            "Факт: завтра действительно наступит! (с вероятностью 99.9%)",
+                            "Знаете ли вы? Мы проверяли этот алгоритм 7 раз!",
+                            "Совет: можете записать этот день в календарь!"
+                        ];
+                        funFact.textContent = funFacts[Math.floor(Math.random() * funFacts.length)];
+                        funFact.style.display = 'block';
+                    }, 2000);
+                }, 2000);
+            }
+            
+            // Функция сброса
+            function resetComputation() {
+                clearInterval(computationInterval);
+                isComputing = false;
+                predictButton.disabled = false;
+                computingText.style.display = 'flex';
+                computingText.textContent = 'Нажмите кнопку для начала вычислений';
+                result.style.display = 'none';
+                progressBar.style.width = '0%';
+                funFact.style.display = 'block';
+                funFact.textContent = "Интересный факт: этот предсказатель точен на 110.7%!";
+            }
+            
+            // Обработчики событий
+            predictButton.addEventListener('click', startComputation);
+            resetButton.addEventListener('click', resetComputation);
+            
+            // Секретный код для "взлома" системы
+            let secretCode = '';
+            document.addEventListener('keydown', function(e) {
+                secretCode += e.key.toLowerCase();
+                if (secretCode.length > 10) {
+                    secretCode = secretCode.substring(secretCode.length - 10);
+                }
+                
+                // Если ввести "секрет", то сразу покажется результат
+                if (secretCode.includes('секрет')) {
+                    if (!isComputing) {
+                        clearInterval(computationInterval);
+                        computingText.style.display = 'none';
+                        const tomorrowDay = getTomorrowDay();
+                        result.textContent = `ВЗЛОМАНО! ЗАВТРА: ${tomorrowDay}!`;
+                        result.style.display = 'block';
+                        result.style.color = '#00ff00';
+                        secretCode = '';
+                        progressBar.style.width = '100%';
+                        
+                        // Мигание для эффекта взлома
+                        let blinkCount = 0;
+                        const blinkInterval = setInterval(() => {
+                            result.style.color = blinkCount % 2 === 0 ? '#ff006e' : '#00ff00';
+                            blinkCount++;
+                            if (blinkCount > 10) {
+                                clearInterval(blinkInterval);
+                                result.style.color = '#00ff00';
+                            }
+                        }, 200);
+                    }
+                }
+                
+                // Если ввести "сегодня", то покажется сегодняшний день
+                if (secretCode.includes('сегодня')) {
+                    if (!isComputing) {
+                        const days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+                        const today = new Date();
+                        const todayIndex = today.getDay();
+                        const todayDay = days[todayIndex].toUpperCase();
+                        
+                        computingText.style.display = 'none';
+                        result.textContent = `СЕГОДНЯ: ${todayDay}`;
+                        result.style.display = 'block';
+                        result.style.color = '#ff7b00';
+                        secretCode = '';
+                    }
+                }
+                
+                // Если ввести "шутка", то покажется шуточный результат
+                if (secretCode.includes('шутка')) {
+                    if (!isComputing) {
+                        const jokes = [
+                            "ЗАВТРА БУДЕТ... ДЕНЬ МОРЖА!",
+                            "ЗАВТРА БУДЕТ... 32 ОКТЯБРЯ!",
+                            "ЗАВТРА БУДЕТ... ЧЕТВЕРГ (СНОВА)!",
+                            "ЗАВТРА БУДЕТ... ВОСКРЕСЕНЬЕ (ВТОРОЙ РАЗ ЗА НЕДЕЛЮ)!"
+                        ];
+                        
+                        computingText.style.display = 'none';
+                        result.textContent = jokes[Math.floor(Math.random() * jokes.length)];
+                        result.style.display = 'block';
+                        result.style.color = '#ff006e';
+                        secretCode = '';
+                    }
+                }
+            });
+            
+            // Добавляем звуковые эффекты при наведении на кнопку (имитация)
+            predictButton.addEventListener('mouseenter', function() {
+                if (!isComputing) {
+                    computingText.innerHTML = '<span style="color:#90e0ef">Система готова к вычислениям. Ожидание команды...</span><div class="cursor"></div>';
+                }
+            });
+            
+            predictButton.addEventListener('mouseleave', function() {
+                if (!isComputing) {
+                    computingText.textContent = 'Нажмите кнопку для начала вычислений';
+                }
+            });
+            
+            // Показываем сегодняшний день при загрузке
+            const days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+            const today = new Date();
+            const todayIndex = today.getDay();
+            const todayDay = days[todayIndex];
+            
+            // Добавляем сегодняшний день в секретное сообщение
+            const secretMsg = document.querySelector('.secret-message');
+            secretMsg.textContent = `Код: 7A3B9F | Версия: 25.01 | Сегодня: ${todayDay}`;
+        });
+    </script>
+</body>
+</html>
